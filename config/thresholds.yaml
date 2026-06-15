@@ -1,0 +1,91 @@
+# All configurable thresholds. Changing these does not require code changes.
+
+freshness_days:
+  pricing: 7
+  revenue: 30
+  feature_status: 14
+  funding: 90
+  hiring_signals: 30
+  partnerships: 60
+  sentiment: 14
+  default: 14
+
+confidence:
+  # Events below this score are quarantined, not stored
+  quarantine_below: 0.70
+  # Cosine similarity above which two events are merged as duplicates
+  dedup_merge_above: 0.88
+  # Coverage score above which KB is considered sufficient for a query
+  coverage_sufficient_above: 0.70
+  # Cosine similarity above which a claim is attributed to a specific event
+  attribution_match_above: 0.75
+
+circuit_breaker:
+  # Consecutive failures before opening the circuit for a source
+  failure_threshold: 5
+  # Seconds to wait before sending a recovery probe
+  recovery_probe_delay_seconds: 3600
+
+crawler:
+  # HTTP request timeout in seconds
+  request_timeout_seconds: 30
+  # Firecrawl job timeout in seconds
+  firecrawl_timeout_seconds: 60
+  # Maximum retries for transient crawl failures
+  max_retries: 3
+  initial_backoff_seconds: 2.0
+  backoff_multiplier: 2.0
+  max_backoff_seconds: 60.0
+  # Redis TTL for crawl cache (seconds) — 24 hours
+  cache_ttl_seconds: 86400
+
+deduplication:
+  # Look back this many days when checking for duplicate events
+  lookback_days: 7
+
+threat_scoring:
+  # z-score weights for threat score components
+  velocity_weight: 40
+  type_weight: 35
+  recency_weight: 25
+  # Recency decay lambda
+  recency_lambda: 0.05
+  # Event type multipliers for type_weight calculation
+  event_type_multipliers:
+    pricing_change: 3
+    feature_launch: 2
+    funding_event: 2
+    acquisition: 3
+    partnership: 1
+    product_update: 1
+    hiring_trend: 1
+    market_trend: 1
+  # Score tiers
+  high_tier_above: 70
+  medium_tier_above: 40
+
+hiring_signals:
+  # Trigger WeakSignalPrediction if category count exceeds this multiple of 180-day baseline
+  anomaly_threshold_multiplier: 2.0
+  # Lookback window for counting hires
+  lookback_days: 60
+  # Baseline window for z-score comparison
+  baseline_days: 180
+
+matrix_agent:
+  # Debounce delay after FeatureLaunchEvent before Matrix Agent runs (minutes)
+  debounce_minutes: 15
+
+narrative:
+  # Minimum events in a cluster to generate a NarrativeEvent
+  min_cluster_size: 3
+  # DBSCAN cosine distance threshold for clustering
+  dbscan_eps: 0.15
+  # Time window for narrative synthesis
+  lookback_days: 90
+
+convergence:
+  # Minimum distinct companies to flag a market trend
+  min_companies: 3
+  # Lookback window for cross-competitor event clustering
+  lookback_days: 60

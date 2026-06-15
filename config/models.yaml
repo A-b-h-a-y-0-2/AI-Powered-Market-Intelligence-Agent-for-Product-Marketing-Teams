@@ -1,0 +1,51 @@
+# Model routing configuration.
+# Never hardcode model names in agent logic — always read from here.
+# Rule: cheapest model that reliably produces the required output quality.
+#
+# Providers:
+#   Groq       → llama-* / mixtral-* models (fast, cheap)
+#   OpenRouter → anthropic/* models (Claude via openrouter.ai API)
+
+routing:
+  pre_filter: "llama-3.1-8b-instant"          # Groq 8B — fast classifier, separate daily quota from 70B
+  extraction: "llama-3.3-70b-versatile"        # Groq 70B — best structured extraction quality
+  validation: "llama-3.3-70b-versatile"        # Groq 70B — judge pass (only on confidence < 0.7)
+  synthesis: "llama-3.1-8b-instant"            # Groq 8B — separate daily quota (70B quota exhausted)
+  conversational: "llama-3.1-8b-instant"       # Groq 8B — separate daily quota (70B quota exhausted)
+  embedding: "text-embedding-3-small"           # OpenAI or OpenRouter (configure OPENAI_API_KEY or EMBEDDING_BASE_URL)
+
+# Embedding notes:
+#   OpenRouter does not serve embedding models. Options:
+#   1. OpenAI (set OPENAI_API_KEY) — text-embedding-3-small, 1536 dims
+#   2. Set EMBEDDING_BASE_URL + EMBEDDING_API_KEY to any OpenAI-compat embedding API
+#   The Embedder reads EMBEDDING_BASE_URL from env (defaults to OpenAI).
+
+# Per-model cost for Langfuse cost tracking (USD per 1k tokens).
+# Update these when provider pricing changes.
+costs:
+  "anthropic/claude-haiku-4-5":
+    input: 0.00025
+    output: 0.00125
+  "anthropic/claude-sonnet-4-6":
+    input: 0.003
+    output: 0.015
+  "llama-3.3-70b-versatile":
+    input: 0.00059
+    output: 0.00079
+  "llama-3.1-8b-instant":
+    input: 0.00005
+    output: 0.00008
+  "text-embedding-3-small":
+    input: 0.00002
+    output: 0.0
+
+# Retry configuration for LLM calls.
+retry:
+  max_attempts: 3
+  initial_delay_seconds: 1.0
+  backoff_multiplier: 2.0
+  max_delay_seconds: 30.0
+
+# Instructor structured output retry settings.
+instructor:
+  max_retries: 3

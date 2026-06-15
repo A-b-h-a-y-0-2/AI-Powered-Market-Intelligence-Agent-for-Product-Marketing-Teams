@@ -1,0 +1,89 @@
+# Stakeholder profiles for a management consulting firm.
+# Roles map to the people who consume competitive intelligence inside a consulting firm.
+
+profiles:
+  - role: "managing_partner"
+    display_name: "Managing Partner"
+    cares_about:
+      - "which competitors are winning what types of mandates"
+      - "competitor headcount and geographic expansion"
+      - "competitor acquisitions of boutiques or technology firms"
+      - "pricing and fee structure signals"
+      - "competitor brand positioning and thought leadership reach"
+      - "lateral partner hires from competitors"
+    decision_context: >
+      Sets firm strategy, makes partner admission decisions, oversees major client relationships.
+      Needs high-level intelligence about where competitors are investing, which practice areas
+      are growing, and what the market positioning shifts signal about future competition.
+    vocabulary_style: "strategic, board-level, market-share-oriented, partner-level framing"
+    default_stakeholder_tags:
+      - "managing_partner"
+      - "ceo"
+
+  - role: "business_development"
+    display_name: "Business Development"
+    cares_about:
+      - "competitor wins and losses on specific accounts"
+      - "competitor fee structures and pricing models"
+      - "which industries competitors are targeting"
+      - "competitor thought leadership used in RFPs"
+      - "new service offerings that affect our proposal positioning"
+      - "client testimonials and case studies competitors publish"
+    decision_context: >
+      Prepares proposals and RFP responses. Needs to know exactly what competitors are offering,
+      how they are pricing it, and what differentiators they claim so proposals can counter
+      or differentiate effectively.
+    vocabulary_style: "proposal-ready, differentiation-focused, concrete and specific"
+    default_stakeholder_tags:
+      - "business_development"
+      - "sales"
+
+  - role: "practice_lead"
+    display_name: "Practice Lead"
+    cares_about:
+      - "competitor capability builds in specific practice areas (AI, ESG, supply chain, etc.)"
+      - "competitor acquisitions of specialist firms"
+      - "competitor thought leadership papers and frameworks they are promoting"
+      - "which partners competitors are recruiting from your firm"
+      - "competitor technology alliances (AWS, Salesforce, SAP partnerships)"
+    decision_context: >
+      Runs a specific practice (e.g. Digital, Operations, M&A). Needs to know when
+      competitors are building capabilities that will compete with the practice's offerings,
+      and what intellectual property or frameworks they are positioning publicly.
+    vocabulary_style: "capability-focused, framework-oriented, practice-specific"
+    default_stakeholder_tags:
+      - "practice_lead"
+      - "product"
+
+  - role: "marketing"
+    display_name: "Marketing & Communications"
+    cares_about:
+      - "competitor thought leadership and flagship report releases"
+      - "competitor media coverage and narrative shifts"
+      - "competitor social media campaigns and messaging"
+      - "awards, rankings, and recognition competitors receive"
+      - "competitor rebranding or positioning changes"
+    decision_context: >
+      Manages firm brand, external communications, and thought leadership publishing cadence.
+      Needs to know what competitors are publishing and how the market narrative is shifting
+      so firm content strategy stays differentiated and timely.
+    vocabulary_style: "narrative-driven, brand-aware, audience-conscious"
+    default_stakeholder_tags:
+      - "marketing"
+
+  - role: "talent"
+    display_name: "Talent & Recruiting"
+    cares_about:
+      - "competitor hiring surges by level and function"
+      - "competitor layoffs and restructurings (talent availability)"
+      - "competitor compensation and benefit changes"
+      - "competitor campus recruiting strategy shifts"
+      - "lateral partner or director moves between firms"
+    decision_context: >
+      Manages recruiting pipeline and talent retention. Needs to know when competitors
+      are flooding the market with offers (threat to retention) or cutting headcount
+      (opportunity to hire strong candidates).
+    vocabulary_style: "talent-pipeline-focused, compensation-aware, retention-oriented"
+    default_stakeholder_tags:
+      - "talent"
+      - "customer_success"

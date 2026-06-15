@@ -1,0 +1,102 @@
+# Feature taxonomy for the Living Feature Matrix.
+# Design this per product category before Phase 3.
+# Adding a new category: bump taxonomy_version minor (1.0 → 1.1).
+# Renaming a category: bump major version (1.0 → 2.0) + run migration script.
+
+taxonomy_version: "1.0"
+
+categories:
+  ai_automation:
+    description: "AI suggestions, copilot features, automation, intelligent recommendations"
+    keywords:
+      - "AI"
+      - "copilot"
+      - "automation"
+      - "suggestions"
+      - "assistant"
+      - "intelligent"
+      - "machine learning"
+      - "LLM"
+      - "generative"
+
+  crm_integration:
+    description: "CRM connections (Salesforce, HubSpot), sync, data import"
+    keywords:
+      - "Salesforce"
+      - "HubSpot"
+      - "CRM"
+      - "sync"
+      - "integration"
+      - "import"
+      - "connect"
+
+  analytics_reporting:
+    description: "Dashboards, attribution, metrics, reporting, insights"
+    keywords:
+      - "dashboard"
+      - "report"
+      - "analytics"
+      - "metrics"
+      - "attribution"
+      - "insights"
+      - "tracking"
+
+  security_compliance:
+    description: "SSO, audit logs, SOC2, GDPR, role-based permissions, security"
+    keywords:
+      - "SSO"
+      - "SAML"
+      - "audit"
+      - "compliance"
+      - "SOC2"
+      - "GDPR"
+      - "permissions"
+      - "security"
+      - "enterprise"
+      - "role-based"
+
+  pricing_packaging:
+    description: "Pricing tiers, free plan changes, enterprise plans, seat limits"
+    keywords:
+      - "pricing"
+      - "plan"
+      - "free tier"
+      - "enterprise"
+      - "seats"
+      - "packaging"
+      - "subscription"
+
+  api_developer:
+    description: "API access, webhooks, SDK releases, embed options, developer tools"
+    keywords:
+      - "API"
+      - "webhook"
+      - "SDK"
+      - "developer"
+      - "embed"
+      - "REST"
+      - "GraphQL"
+      - "integration"
+
+  content_generation:
+    description: "Email writing, sequence generation, content creation, templates"
+    keywords:
+      - "generate"
+      - "write"
+      - "sequence"
+      - "email"
+      - "content"
+      - "template"
+      - "draft"
+
+  workflow_ux:
+    description: "UI improvements, new workflows, onboarding changes, navigation"
+    keywords:
+      - "workflow"
+      - "UI"
+      - "UX"
+      - "onboarding"
+      - "navigation"
+      - "redesign"
+      - "interface"
+      - "experience"

@@ -1,0 +1,302 @@
+competitors:
+- canonical_names:
+  - McKinsey & Company
+  - McKinsey
+  - McKinsey and Company
+  competitor: McKinsey & Company
+  sources:
+  # RSS — official feed + Google News aggregation
+  - type: rss
+    frequency: 30min
+    url: https://www.mckinsey.com/insights/rss
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=McKinsey+%26+Company+consulting&hl=en-US&gl=US&ceid=US:en
+  # Firecrawl — company-owned content sections (daily crawl for new articles)
+  - type: firecrawl
+    frequency: daily
+    url: https://www.mckinsey.com/insights
+  - type: firecrawl
+    frequency: daily
+    url: https://www.mckinsey.com/about-us/new-at-mckinsey-blog
+  - type: firecrawl
+    frequency: daily
+    url: https://www.mckinsey.com/featured-insights
+  - type: firecrawl
+    frequency: daily
+    url: https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights
+  # Tavily — targeted news search + hiring signals
+  - type: tavily
+    frequency: daily
+    query: McKinsey consulting new service practice acquisition partnership announcement 2025 2026
+  - type: tavily
+    frequency: daily
+    query: McKinsey QuantumBlack AI platform product launch announcement
+  - type: tavily
+    frequency: weekly
+    query: McKinsey hiring layoffs restructuring AI practice leadership change 2025 2026
+  # Indeed — hiring signals (weekly batch, curious_coder/indeed-scraper)
+  - type: apify
+    frequency: weekly
+    actor: indeed-jobs-scraper
+    max_results: 5
+    query: McKinsey & Company
+
+- canonical_names:
+  - Boston Consulting Group
+  - BCG
+  - The Boston Consulting Group
+  competitor: Boston Consulting Group
+  sources:
+  # RSS — Google News (BCG has no public RSS)
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=Boston+Consulting+Group+BCG&hl=en-US&gl=US&ceid=US:en
+  # Firecrawl — company-owned content sections
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bcg.com/publications/latest
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bcg.com/about/about-bcg/media
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bcg.com/capabilities/artificial-intelligence/insights
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bcg.com/industries/technology-digital-data/insights
+  # Tavily — targeted news search + hiring signals
+  - type: tavily
+    frequency: daily
+    query: Boston Consulting Group BCG new capability acquisition partnership announcement 2025 2026
+  - type: tavily
+    frequency: daily
+    query: BCG AI technology platform product launch client announcement
+  - type: tavily
+    frequency: weekly
+    query: BCG consulting headcount hiring AI technology practice expansion leadership
+  # Indeed — hiring signals
+  - type: apify
+    frequency: weekly
+    actor: indeed-jobs-scraper
+    max_results: 5
+    query: Boston Consulting Group BCG
+
+- canonical_names:
+  - Bain & Company
+  - Bain
+  - Bain and Company
+  competitor: Bain & Company
+  sources:
+  # RSS — Google News (Bain has no public RSS)
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=Bain+%26+Company+consulting&hl=en-US&gl=US&ceid=US:en
+  # Firecrawl — company-owned content sections
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bain.com/insights/
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bain.com/about/media-center/press-releases/
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bain.com/vector/
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bain.com/insights/topics/artificial-intelligence/
+  # Tavily — targeted news search + hiring signals
+  - type: tavily
+    frequency: daily
+    query: Bain & Company consulting new service offering acquisition technology investment announcement 2025 2026
+  - type: tavily
+    frequency: daily
+    query: Bain consulting AI digital practice launch partnership
+  - type: tavily
+    frequency: weekly
+    query: Bain consulting leadership changes hiring practice expansion restructuring
+  # Indeed — hiring signals
+  - type: apify
+    frequency: weekly
+    actor: indeed-jobs-scraper
+    max_results: 5
+    query: Bain & Company
+
+- canonical_names:
+  - Deloitte Strategy
+  - Deloitte Consulting
+  - Deloitte
+  competitor: Deloitte
+  sources:
+  # RSS — Google News
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=Deloitte+consulting+strategy&hl=en-US&gl=US&ceid=US:en
+  # Firecrawl — company-owned content sections
+  - type: firecrawl
+    frequency: daily
+    url: https://www2.deloitte.com/us/en/insights.html
+  - type: firecrawl
+    frequency: daily
+    url: https://www2.deloitte.com/us/en/pages/about-deloitte/articles/press-releases.html
+  - type: firecrawl
+    frequency: daily
+    url: https://www2.deloitte.com/us/en/pages/technology/topics/ai-institute.html
+  - type: firecrawl
+    frequency: daily
+    url: https://www2.deloitte.com/us/en/pages/consulting/topics/consulting-services.html
+  # Tavily — targeted news search + hiring signals
+  - type: tavily
+    frequency: daily
+    query: Deloitte news strategy AI product announcement partnership acquisition 2025 2026
+  - type: tavily
+    frequency: daily
+    query: Deloitte AI Institute consulting technology platform launch
+  - type: tavily
+    frequency: weekly
+    query: Deloitte hiring layoffs leadership announcement restructuring
+  # Indeed — hiring signals
+  - type: apify
+    frequency: weekly
+    actor: indeed-jobs-scraper
+    max_results: 5
+    query: Deloitte Consulting
+
+- canonical_names:
+  - KPMG
+  - KPMG Consulting
+  - KPMG Advisory
+  competitor: KPMG Advisory
+  sources:
+  # RSS — Google News
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=KPMG+Advisory+consulting&hl=en-US&gl=US&ceid=US:en
+  # Firecrawl — company-owned content sections
+  - type: firecrawl
+    frequency: daily
+    url: https://kpmg.com/us/en/home/insights.html
+  - type: firecrawl
+    frequency: daily
+    url: https://kpmg.com/us/en/home/media/press-releases.html
+  - type: firecrawl
+    frequency: daily
+    url: https://kpmg.com/us/en/home/insights/ai.html
+  - type: firecrawl
+    frequency: daily
+    url: https://kpmg.com/us/en/home/services/advisory.html
+  # Tavily — targeted news search + hiring signals
+  - type: tavily
+    frequency: daily
+    query: KPMG Advisory news strategy AI product announcement 2025 2026
+  - type: tavily
+    frequency: daily
+    query: KPMG consulting technology platform acquisition partnership announcement
+  - type: tavily
+    frequency: weekly
+    query: KPMG Advisory hiring layoffs leadership announcement restructuring
+  # Indeed — hiring signals
+  - type: apify
+    frequency: weekly
+    actor: indeed-jobs-scraper
+    max_results: 5
+    query: KPMG Advisory
+
+- canonical_names:
+  - Deloitte Digital
+  competitor: Deloitte Digital
+  sources:
+  # RSS — Google News
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=Deloitte+Digital&hl=en-US&gl=US&ceid=US:en
+  # Firecrawl — company-owned content sections
+  - type: firecrawl
+    frequency: daily
+    url: https://www.deloittedigital.com/us/en/blog-list.html
+  - type: firecrawl
+    frequency: daily
+    url: https://www.deloittedigital.com/us/en/insights.html
+  - type: firecrawl
+    frequency: daily
+    url: https://www2.deloitte.com/us/en/pages/technology/solutions/deloitte-digital.html
+  # Tavily — targeted news search
+  - type: tavily
+    frequency: daily
+    query: Deloitte Digital product launch platform acquisition partnership client announcement 2025 2026
+  - type: tavily
+    frequency: daily
+    query: Deloitte Digital AI experience cloud commerce announcement
+  - type: tavily
+    frequency: weekly
+    query: Deloitte Digital hiring engineering design technology expansion
+
+- canonical_names:
+  - Oliver Wyman
+  competitor: Oliver Wyman
+  sources:
+  # RSS — Google News + company feed
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=Oliver+Wyman+consulting&hl=en-US&gl=US&ceid=US:en
+  - type: rss
+    frequency: 30min
+    url: https://www.oliverwyman.com/our-expertise/insights.rss
+  # Firecrawl — company-owned content sections
+  - type: firecrawl
+    frequency: daily
+    url: https://www.oliverwyman.com/our-expertise/insights.html
+  - type: firecrawl
+    frequency: daily
+    url: https://www.oliverwyman.com/media-center/press-releases.html
+  - type: firecrawl
+    frequency: daily
+    url: https://www.oliverwyman.com/our-expertise/capabilities/digital-transformation.html
+  # Tavily — targeted news search
+  - type: tavily
+    frequency: daily
+    query: Oliver Wyman consulting new report practice launch partnership announcement 2025 2026
+  - type: tavily
+    frequency: daily
+    query: Oliver Wyman financial services risk digital advisory announcement
+  - type: tavily
+    frequency: weekly
+    query: Oliver Wyman hiring leadership restructuring practice expansion
+
+- canonical_names:
+  - Accenture Strategy
+  competitor: Accenture Strategy
+  sources:
+  # RSS — Google News
+  - type: rss
+    frequency: 30min
+    url: https://news.google.com/rss/search?q=Accenture+Strategy+consulting&hl=en-US&gl=US&ceid=US:en
+  # Firecrawl — company-owned content sections
+  - type: firecrawl
+    frequency: daily
+    url: https://www.accenture.com/us-en/insights
+  - type: firecrawl
+    frequency: daily
+    url: https://newsroom.accenture.com/
+  - type: firecrawl
+    frequency: daily
+    url: https://www.accenture.com/us-en/blogs/blogs-index
+  - type: firecrawl
+    frequency: daily
+    url: https://www.accenture.com/us-en/services/strategy-index
+  # Tavily — targeted news search
+  - type: tavily
+    frequency: daily
+    query: Accenture Strategy consulting acquisition partnership AI platform announcement 2025 2026
+  - type: tavily
+    frequency: daily
+    query: Accenture reinvention services AI management consulting announcement
+  - type: tavily
+    frequency: weekly
+    query: Accenture hiring restructuring workforce AI practice expansion leadership
+  # Indeed — hiring signals
+  - type: apify
+    frequency: weekly
+    actor: indeed-jobs-scraper
+    max_results: 5
+    query: Accenture Strategy
