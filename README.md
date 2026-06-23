@@ -1,9 +1,12 @@
 # AI-Powered Market Intelligence Agent
 
-A production-grade, multi-agent system that continuously monitors competitors, converts raw web content into structured knowledge, and answers any stakeholder query in under 10 seconds — grounded in evidence, with source citations and confidence scores on every response.
+A production-grade, multi-agent system that continuously monitors competitors, converts raw web content into structured knowledge, and answers any stakeholder query in under 10 seconds — grounded in evidence, with source citations and confidence scores on every response. 
+
+
+(⚠️ Demo project — add authentication before any production use)
+
 
 Built for management consulting firms and product marketing teams who need to know what competitors are doing before it shows up in the news.
-
 ---
 
 ## What It Does
