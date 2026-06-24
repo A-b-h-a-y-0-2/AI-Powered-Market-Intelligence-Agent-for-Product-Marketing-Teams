@@ -63,6 +63,31 @@ export interface HealthStatus {
   components: Record<string, string>;
 }
 
+export interface NarrativeEvent {
+  narrative_id: string;
+  company: string;
+  narrative_title: string;
+  narrative_summary: string;
+  strategic_intent: string;
+  confidence: number;
+  constituent_event_ids: string[];
+  time_window_days: number;
+  key_signals: string[];
+  generated_date: string;
+}
+
+export interface PipelineStatus {
+  last_research_run: string | null;
+  last_extraction_run: string | null;
+  last_sentiment_run: string | null;
+  last_narrative_run: string | null;
+  last_threat_run: string | null;
+  next_scheduled_run: string | null;
+  events_ingested_today: number;
+  events_ingested_total: number;
+  pipeline_health: "healthy" | "degraded" | "down";
+}
+
 export interface ChatChunk {
   type: "chunk" | "status" | "done" | "error";
   content: string;
@@ -101,6 +126,11 @@ export const api = {
     }),
 
   matrix: (company: string) => get<FeatureMatrixResponse>(`/matrix/${encodeURIComponent(company)}`),
+
+  narratives: (company: string, days = 90) =>
+    get<NarrativeEvent[]>("/narratives", { company, days }),
+
+  pipelineStatus: () => get<PipelineStatus>("/pipeline/status"),
 
   quarantine: (limit = 50) => get<QuarantineItem[]>("/admin/quarantine", { limit }),
   quarantineStats: () => get<QuarantineStats>("/admin/quarantine/stats"),

@@ -21,7 +21,12 @@ const EVENT_COLORS: Record<string, string> = {
   customer_sentiment: "#84cc16",
 };
 
-const COMPANIES = ["Competitor A", "Competitor B", "Competitor C"];
+const COMPANIES = [
+  { label: "McKinsey", full: "McKinsey & Company" },
+  { label: "BCG", full: "Boston Consulting Group" },
+  { label: "Bain", full: "Bain & Company" },
+  { label: "Deloitte", full: "Deloitte" },
+];
 
 function ConfBar({ score }: { score: number }) {
   const pct = Math.round(score * 100);
@@ -94,7 +99,7 @@ function EventsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const defaultCompany = searchParams.get("company") ?? COMPANIES[0];
+  const defaultCompany = searchParams.get("company") ?? COMPANIES[0].full;
   const [company, setCompany] = useState(defaultCompany);
   const [eventType, setEventType] = useState("all");
   const [days, setDays] = useState(30);
@@ -120,13 +125,13 @@ function EventsContent() {
         {/* Company selector */}
         <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: "var(--border)" }}>
           {COMPANIES.map(c => (
-            <button key={c} onClick={() => setCompany(c)}
+            <button key={c.full} onClick={() => setCompany(c.full)}
               className="px-4 py-2 text-sm font-medium transition-colors"
               style={{
-                background: company === c ? "var(--accent)" : "var(--surface)",
-                color: company === c ? "#fff" : "var(--text-muted)",
+                background: company === c.full ? "var(--accent)" : "var(--surface)",
+                color: company === c.full ? "#fff" : "var(--text-muted)",
               }}>
-              {c}
+              {c.label}
             </button>
           ))}
         </div>
