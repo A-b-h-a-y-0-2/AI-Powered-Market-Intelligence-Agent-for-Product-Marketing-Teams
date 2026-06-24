@@ -668,6 +668,18 @@ class ConversationalAgent(BaseAgent):
                 reason="no_results",
             )
 
+        # When the KB has substantial coverage (≥5 events for the company + time window),
+        # trust the data and skip the Haiku evaluation call. The LLM sees only 150-char
+        # excerpts and tends to flag coverage as insufficient even when the KB is adequate.
+        if len(events) >= 5:
+            return CoverageEvalResult(
+                coverage_sufficient=True,
+                coverage_score=0.75,
+                missing_information=None,
+                stale_data=False,
+                reason="kb_threshold_met",
+            )
+
         model = self._model_config.get("pre_filter", "claude-haiku-4-5-20251001")
         context_summary = "\n".join(
             f"- [{e.get('event_type')}] {e.get('timestamp', '')[:10]}: {e.get('summary', '')[:150]}"

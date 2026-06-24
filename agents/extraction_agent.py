@@ -73,7 +73,7 @@ _EXTRACTABLE_TYPES = {
 }
 
 _CONFIDENCE_QUARANTINE_THRESHOLD = 0.70
-_DEDUP_SIMILARITY_THRESHOLD = 0.88
+_DEDUP_SIMILARITY_THRESHOLD = 0.82  # Lowered from 0.88 — catches paraphrased duplicates from Tavily
 _DEDUP_LOOKBACK_DAYS = 7
 
 
@@ -461,13 +461,22 @@ class ExtractionAgent(BaseAgent):
         Returns (is_duplicate, existing_event_id).
         """
         try:
-            new_embedding = await self._embedder.embed(event_obj.summary)
             recent_events = await self._event_store.get_recent_events(
                 company=company, days=_DEDUP_LOOKBACK_DAYS, limit=50
             )
 
             if not recent_events:
                 return False, None
+
+            # Pass 1: exact URL match — fastest and most reliable
+            new_urls = set(getattr(event_obj, "source_urls", []))
+            for existing in recent_events:
+                existing_urls = set(existing.get("source_urls", []))
+                if new_urls & existing_urls:
+                    return True, str(existing.get("_id", ""))
+
+            # Pass 2: semantic similarity via embeddings
+            new_embedding = await self._embedder.embed(event_obj.summary)
 
             # Get embeddings for recent events
             recent_summaries = [e.get("summary", "") for e in recent_events]

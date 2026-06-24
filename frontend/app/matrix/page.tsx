@@ -91,12 +91,17 @@ function SingleMatrix({ company, matrix, error, loading }: {
           ) : (
             <div className="divide-y" style={{ borderColor: "var(--border)" }}>
               {features.map((f, i) => (
-                <div key={i} className="px-5 py-3 flex items-center gap-3"
+                <div key={i} className="px-5 py-3 flex items-start gap-3 min-w-0"
                   style={{ background: "var(--surface)" }}>
-                  <div className="flex-1">
-                    <div className="text-sm">{f.name}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium">{f.name}</div>
+                    {f.description && (
+                      <div className="text-xs mt-1 leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                        {f.description}
+                      </div>
+                    )}
                     {f.launched_date && (
-                      <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                      <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
                         Launched {new Date(f.launched_date).toLocaleDateString("en-US", {
                           month: "short", year: "numeric",
                         })}
@@ -104,7 +109,7 @@ function SingleMatrix({ company, matrix, error, loading }: {
                     )}
                   </div>
                   {f.source_event_id && (
-                    <span className="text-xs px-1.5 py-0.5 rounded"
+                    <span className="text-xs px-1.5 py-0.5 rounded flex-shrink-0 mt-0.5"
                       style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}>
                       event: {f.source_event_id.slice(0, 8)}
                     </span>

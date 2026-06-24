@@ -222,6 +222,7 @@ class SentimentAgent(BaseAgent):
             doc["event_type"] = "customer_sentiment"
             doc["timestamp"] = datetime.now(tz=timezone.utc).isoformat()
             doc["source_urls"] = []
+            doc["summary"] = event.summary  # computed property — not in model_dump()
             await self._event_store.insert_event(doc)
 
             log.info(

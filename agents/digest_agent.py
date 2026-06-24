@@ -153,9 +153,14 @@ class DigestAgent(BaseAgent):
             week_events.extend(events)
 
         threat_scores = await self._event_store.get_latest_threat_scores()
-        narratives = await self._event_store.get_recent_events(
-            company="", days=7, event_types=["narrative"], limit=10
-        ) if companies else []
+        # Fetch narratives per-company — event_store requires a company filter
+        # and narratives are generated weekly so use a 14-day window
+        narratives: list[dict] = []
+        for co in companies:
+            co_narratives = await self._event_store.get_recent_events(
+                company=co, days=14, event_types=["narrative"], limit=3
+            )
+            narratives.extend(co_narratives)
 
         for role, profile in self._stakeholder_profiles.items():
             try:

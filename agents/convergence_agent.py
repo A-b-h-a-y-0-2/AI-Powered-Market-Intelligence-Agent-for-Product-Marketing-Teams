@@ -35,8 +35,8 @@ from tools.llm_adapter import LLMAdapter
 log = get_logger("convergence_agent")
 
 _LOOKBACK_DAYS = 60
-_MIN_COMPANIES_FOR_TREND = 3
-_DBSCAN_EPS = 0.20
+_MIN_COMPANIES_FOR_TREND = 2  # Lowered from 3 — with small initial datasets, 3 is too strict
+_DBSCAN_EPS = 0.35  # Raised from 0.20 — cross-company events on the same topic have cosine distance ~0.25-0.35
 _MIN_CLUSTER_SIZE = 2
 _TREND_EVENT_TYPES = [
     "feature_launch",

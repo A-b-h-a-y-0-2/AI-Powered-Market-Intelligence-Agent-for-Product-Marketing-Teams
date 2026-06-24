@@ -5,7 +5,15 @@ from pydantic_settings import BaseSettings
 
 
 class SourceConfig(BaseModel):
-    type: str = Field(..., description="'rss', 'firecrawl', 'apify', 'tavily'")
+    type: str = Field(
+        ...,
+        description=(
+            "'rss', 'firecrawl', 'apify', 'tavily', 'edgar', "
+            "'companies_house', 'patents', 'court_listener', "
+            "'semantic_scholar', 'github', 'alpha_vantage', "
+            "'open_secrets', 'mca21'"
+        ),
+    )
     url: str | None = Field(default=None)
     frequency: str = Field(default="daily", description="'30min', 'daily', 'weekly'")
     apify_actor: str | None = Field(default=None, alias="actor")
@@ -14,6 +22,9 @@ class SourceConfig(BaseModel):
     apify_query: str | None = Field(default=None, alias="query")
     fallback: str | None = Field(default=None, description="Fallback strategy e.g. 'tavily'")
     max_results: int | None = Field(default=None, description="Max items to fetch from Apify actors")
+    entity: str | None = Field(default=None, description="Company name for EDGAR search (overrides competitor name)")
+    label: str | None = Field(default=None, description="Human-readable label for this source")
+    input: dict | None = Field(default=None, description="Arbitrary input dict for Apify actors (e.g. Reddit scraper)")
 
     model_config = {"populate_by_name": True}
 
@@ -101,6 +112,13 @@ class AppConfig(BaseSettings):
     firecrawl_api_key: str | None = Field(default=None)
     tavily_api_key: str | None = Field(default=None)
     apify_api_key: str | None = Field(default=None)
+    # Data source API keys — all free/registration-only tiers
+    companies_house_api_key: str | None = Field(default=None)
+    lens_api_key: str | None = Field(default=None)
+    court_listener_token: str | None = Field(default=None)
+    github_token: str | None = Field(default=None)
+    alpha_vantage_api_key: str | None = Field(default=None)
+    open_secrets_api_key: str | None = Field(default=None)
     mongodb_uri: str = Field(default="mongodb://localhost:27017")
     mongodb_db_name: str = Field(default="market_intelligence")
     supabase_url: str | None = Field(default=None)

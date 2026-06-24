@@ -20,7 +20,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import normalize
 
@@ -205,7 +205,7 @@ class NarrativeAgent(BaseAgent):
             narrative_title: str
             narrative_summary: str
             strategic_intent: str
-            confidence: float
+            confidence: float = Field(..., ge=0.0, le=0.95)
             key_signals: list[str]
 
         async with trace_span(self.name, "synthesise_narrative") as span:
@@ -231,7 +231,7 @@ class NarrativeAgent(BaseAgent):
                     str(e.get("_id", "")) for e in cluster_events if e.get("_id")
                 ]
 
-                return NarrativeEvent(
+                narrative = NarrativeEvent(
                     company=company,
                     narrative_title=result.narrative_title,
                     narrative_summary=result.narrative_summary,
@@ -241,6 +241,13 @@ class NarrativeAgent(BaseAgent):
                     generated_date=datetime.now(tz=timezone.utc).isoformat(),
                     stakeholder_tags=["ceo", "marketing", "product"],
                 )
+                # key_signals and strategic_intent come from NarrativeSchema but
+                # don't exist on NarrativeEvent — carry them as extra doc fields
+                narrative._extra_fields = {  # type: ignore[attr-defined]
+                    "key_signals": result.key_signals,
+                    "strategic_intent": result.strategic_intent,
+                }
+                return narrative
             except Exception as exc:
                 log.error(
                     "narrative_synthesis_failed",
@@ -258,6 +265,9 @@ class NarrativeAgent(BaseAgent):
         doc["source_urls"] = []
         doc["confidence_score"] = narrative.confidence
         doc["summary"] = f"{narrative.company}: {narrative.narrative_title} — {narrative.narrative_summary[:150]}"
+        # Merge extra fields computed during synthesis (key_signals, strategic_intent)
+        extra = getattr(narrative, "_extra_fields", {})
+        doc.update(extra)
         await self._event_store.insert_event(doc)
         log.info(
             "narrative_stored",

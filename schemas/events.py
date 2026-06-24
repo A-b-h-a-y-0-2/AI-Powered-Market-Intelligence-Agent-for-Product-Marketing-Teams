@@ -164,6 +164,15 @@ class CustomerSentimentEvent(BaseModel):
     stakeholder_tags: list[str] = Field(default_factory=list)
     data_freshness_threshold_days: int = Field(default=14)
 
+    @property
+    def summary(self) -> str:
+        direction = "positive" if self.sentiment_score > 0.1 else ("negative" if self.sentiment_score < -0.1 else "mixed")
+        return (
+            f"{direction.capitalize()} sentiment on {self.aspect.replace('_', ' ')} "
+            f"from {self.review_count} reviews on {self.source_platform} "
+            f"(score: {self.sentiment_score:+.2f})"
+        )
+
 
 class HiringSignalEvent(BaseModel):
     schema_version: str = Field(default="1.0")

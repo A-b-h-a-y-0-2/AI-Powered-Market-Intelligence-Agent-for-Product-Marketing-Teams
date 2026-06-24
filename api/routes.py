@@ -90,6 +90,61 @@ class PipelineRunSummary(BaseModel):
     errors: list[dict[str, str]]
 
 
+class PipelineHealthSummary(BaseModel):
+    last_research_run: str | None
+    last_extraction_run: str | None
+    last_sentiment_run: str | None
+    last_narrative_run: str | None
+    last_threat_run: str | None
+    next_scheduled_run: str | None
+    events_ingested_today: int
+    events_ingested_total: int
+    pipeline_health: str
+
+
+@router.get("/pipeline/summary", response_model=PipelineHealthSummary, tags=["ops"])
+async def get_pipeline_summary(
+    event_store: EventStore = Depends(get_event_store),
+) -> PipelineHealthSummary:
+    """Return aggregate pipeline health stats inferred from stored events."""
+    from datetime import timedelta
+
+    db = event_store._require_db()  # type: ignore[attr-defined]
+    now = datetime.now(tz=timezone.utc)
+    today_cutoff = (now - timedelta(hours=24)).isoformat()
+
+    async def last_event_ts(event_type: str) -> str | None:
+        doc = await db["events"].find_one(
+            {"event_type": event_type}, sort=[("timestamp", -1)]
+        )
+        return doc.get("timestamp") if doc else None
+
+    narrative_ts = await last_event_ts("narrative")
+    threat_ts = await last_event_ts("threat_score")
+    sentiment_ts = await last_event_ts("customer_sentiment")
+    hiring_ts = await last_event_ts("hiring_trend")
+
+    # Use hiring_trend timestamp as proxy for research+extraction run
+    research_ts = hiring_ts or await last_event_ts("feature_launch") or await last_event_ts("partnership")
+
+    today_count = await db["events"].count_documents({"timestamp": {"$gte": today_cutoff}})
+    total_count = await db["events"].count_documents({})
+
+    health = "healthy" if total_count > 0 else "down"
+
+    return PipelineHealthSummary(
+        last_research_run=research_ts,
+        last_extraction_run=research_ts,
+        last_sentiment_run=sentiment_ts,
+        last_narrative_run=narrative_ts,
+        last_threat_run=threat_ts,
+        next_scheduled_run=None,
+        events_ingested_today=today_count,
+        events_ingested_total=total_count,
+        pipeline_health=health,
+    )
+
+
 @router.get("/pipeline/status/{run_id}", response_model=PipelineRunSummary, tags=["ops"])
 async def get_pipeline_status(
     run_id: str,
@@ -796,13 +851,62 @@ async def get_threat_score(
     )
 
 
+# ── Narratives (Phase 4 — weekly synthesis output) ────────────────────────────
+
+class NarrativeResponse(BaseModel):
+    narrative_id: str
+    company: str
+    narrative_title: str
+    narrative_summary: str
+    strategic_intent: str
+    confidence: float
+    constituent_event_ids: list[str]
+    time_window_days: int
+    key_signals: list[str]
+    generated_date: str
+
+
+@router.get("/narratives", response_model=list[NarrativeResponse], tags=["intel"])
+async def list_narratives(
+    company: str,
+    days: int = 90,
+    event_store: EventStore = Depends(get_event_store),
+) -> list[NarrativeResponse]:
+    """Return narrative events (weekly synthesis) for a competitor."""
+    try:
+        docs = await event_store.get_recent_events(
+            company=company,
+            days=days,
+            event_types=["narrative"],
+            limit=20,
+        )
+    except StorageError as exc:
+        raise HTTPException(status_code=500, detail=exc.message) from exc
+
+    return [
+        NarrativeResponse(
+            narrative_id=str(doc.get("_id", "")),
+            company=doc.get("company", ""),
+            narrative_title=doc.get("narrative_title", ""),
+            narrative_summary=doc.get("narrative_summary", doc.get("summary", "")),
+            strategic_intent=doc.get("strategic_intent", ""),
+            confidence=doc.get("confidence", doc.get("confidence_score", 0.0)),
+            constituent_event_ids=doc.get("constituent_event_ids", []),
+            time_window_days=doc.get("time_window_days", 90),
+            key_signals=doc.get("key_signals", []),
+            generated_date=doc.get("generated_date", doc.get("timestamp", "")),
+        )
+        for doc in docs
+    ]
+
+
 # ── Feature matrix (Phase 3 — served from pre-computed docs) ──────────────────
 
 class FeatureMatrixResponse(BaseModel):
     company: str
     taxonomy_version: str
     last_updated: str
-    features: dict[str, list[dict[str, str]]]
+    features: dict[str, list[dict[str, Any]]]
 
 
 @router.get("/matrix/{company}", response_model=FeatureMatrixResponse, tags=["intel"])
@@ -819,11 +923,21 @@ async def get_feature_matrix(
     if not doc:
         raise HTTPException(status_code=404, detail=f"No feature matrix found for: {company}")
 
+    # Normalize stored entries: old pipeline used "feature_name", current uses "name"
+    raw_features: dict[str, list[dict[str, Any]]] = doc.get("features", {})
+    normalized: dict[str, list[dict[str, Any]]] = {
+        cat: [
+            {**entry, "name": entry.get("name") or entry.get("feature_name", "")}
+            for entry in entries
+        ]
+        for cat, entries in raw_features.items()
+    }
+
     return FeatureMatrixResponse(
         company=doc["company"],
         taxonomy_version=doc.get("taxonomy_version", "1.0"),
         last_updated=doc.get("last_updated", ""),
-        features=doc.get("features", {}),
+        features=normalized,
     )
 
 

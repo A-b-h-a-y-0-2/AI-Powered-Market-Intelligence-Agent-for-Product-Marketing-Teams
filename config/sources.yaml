@@ -41,6 +41,75 @@ competitors:
     actor: indeed-jobs-scraper
     max_results: 5
     query: McKinsey & Company
+  # SEC EDGAR — McKinsey is private but 8-K filings from client/acquired companies mention them
+  - type: edgar
+    entity: McKinsey
+    frequency: daily
+    label: SEC EDGAR 8-K filings mentioning McKinsey
+  # Official newsroom blog RSS (more specific than Google News)
+  - type: rss
+    frequency: 30min
+    url: https://www.mckinsey.com/about-us/new-at-mckinsey-blog/rss
+  # Site-scoped Tavily queries — official McKinsey domain only, eliminates misattribution
+  - type: tavily
+    frequency: daily
+    query: site:mckinsey.com AI platform launch announcement partnership 2025 2026
+  - type: tavily
+    frequency: daily
+    query: site:mckinsey.com acquisition investment deal announcement
+  # Press room (official announcements before media picks them up)
+  - type: firecrawl
+    frequency: daily
+    url: https://www.mckinsey.com/about-us/media-relations
+  # QuantumBlack AI platform updates
+  - type: firecrawl
+    frequency: daily
+    url: https://www.mckinsey.com/capabilities/quantumblack/our-insights
+  # Reddit — community discussion and sentiment (weekly)
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - McKinsey consulting AI review
+        - McKinsey QuantumBlack AI
+        - McKinsey & Company
+      subreddits:
+        - consulting
+        - MBA
+        - management
+        - BusinessIntelligence
+      maxItems: 25
+  # UK Companies House — McKinsey & Company Limited (CIN 01327109)
+  - type: companies_house
+    entity: McKinsey
+    frequency: weekly
+    label: McKinsey UK subsidiary annual accounts and director filings
+  # Patents — QuantumBlack / McKinsey Labs
+  - type: patents
+    entity: McKinsey
+    frequency: weekly
+    label: McKinsey / QuantumBlack patent filings (Lens.org)
+  # Litigation — federal cases mentioning McKinsey
+  - type: court_listener
+    entity: McKinsey
+    frequency: weekly
+    label: Federal court cases involving McKinsey
+  # Research papers — McKinsey Global Institute
+  - type: semantic_scholar
+    entity: McKinsey & Company
+    frequency: weekly
+    label: McKinsey Global Institute research papers
+  # India news — sourced via RSS (zero-code additions)
+  - type: rss
+    frequency: daily
+    url: https://news.google.com/rss/search?q=McKinsey+India&hl=en-IN&gl=IN&ceid=IN:en
+    label: McKinsey India news via Google News India
+  # India MCA21 — McKinsey & Company India Pvt Ltd
+  - type: mca21
+    entity: McKinsey
+    frequency: weekly
+    label: MCA21 filings — McKinsey & Company India Pvt Ltd (CIN U74140DL1993FTC052104)
 
 - canonical_names:
   - Boston Consulting Group
@@ -81,6 +150,78 @@ competitors:
     actor: indeed-jobs-scraper
     max_results: 5
     query: Boston Consulting Group BCG
+  # SEC EDGAR — BCG is private but mentioned in client/acquired company filings
+  - type: edgar
+    entity: Boston Consulting Group
+    frequency: daily
+    label: SEC EDGAR 8-K filings mentioning BCG
+  # Official BCG newsroom RSS
+  - type: rss
+    frequency: 30min
+    url: https://www.bcg.com/rss/news.xml
+  # Site-scoped Tavily queries — BCG official domain only
+  - type: tavily
+    frequency: daily
+    query: site:bcg.com AI platform launch announcement partnership acquisition 2025 2026
+  - type: tavily
+    frequency: daily
+    query: BCG X venture acquisition investment digital product launch 2025 2026
+  # BCG media center (press releases)
+  - type: firecrawl
+    frequency: daily
+    url: https://www.bcg.com/about/about-bcg/media-center
+  # Reddit — community discussion
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - Boston Consulting Group BCG consulting review
+        - BCG X digital ventures
+        - BCG AI strategy
+      subreddits:
+        - consulting
+        - MBA
+        - management
+        - BusinessIntelligence
+      maxItems: 25
+  # UK Companies House — The Boston Consulting Group (UK) Ltd (01277015)
+  - type: companies_house
+    entity: Boston Consulting Group
+    frequency: weekly
+    label: BCG UK subsidiary annual accounts and director filings
+  # Patents — BCG Gamma / BCG X research
+  - type: patents
+    entity: Boston Consulting Group
+    frequency: weekly
+    label: BCG patent filings (Lens.org)
+  # Litigation
+  - type: court_listener
+    entity: Boston Consulting Group
+    frequency: weekly
+    label: Federal court cases involving BCG
+  # Research papers — BCG Henderson Institute
+  - type: semantic_scholar
+    entity: Boston Consulting Group
+    frequency: weekly
+    label: BCG Henderson Institute research papers
+  # GitHub — BCG X open source (verify org slug; fallback to search if not found)
+  - type: github
+    input:
+      orgs:
+        - BCG-X
+    frequency: weekly
+    label: BCG X GitHub activity (new repos and releases)
+  # India news
+  - type: rss
+    frequency: daily
+    url: https://news.google.com/rss/search?q=BCG+Boston+Consulting+India&hl=en-IN&gl=IN&ceid=IN:en
+    label: BCG India news via Google News India
+  # India MCA21 — BCG India Pvt Ltd
+  - type: mca21
+    entity: Boston Consulting Group
+    frequency: weekly
+    label: MCA21 filings — BCG India Pvt Ltd (CIN U74300MH1994PTC082042)
 
 - canonical_names:
   - Bain & Company
@@ -121,6 +262,62 @@ competitors:
     actor: indeed-jobs-scraper
     max_results: 5
     query: Bain & Company
+  # Official Bain press release RSS
+  - type: rss
+    frequency: 30min
+    url: https://www.bain.com/press-releases/rss/
+  # Site-scoped Tavily queries
+  - type: tavily
+    frequency: daily
+    query: site:bain.com AI platform launch announcement partnership acquisition 2025 2026
+  - type: tavily
+    frequency: daily
+    query: Bain ADAPT AI private equity technology acquisition partnership deal 2025 2026
+  # Reddit — community discussion
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - Bain Company consulting review
+        - Bain AI analytics ADAPT
+        - Bain and Company strategy
+      subreddits:
+        - consulting
+        - MBA
+        - privateequity
+        - BusinessIntelligence
+      maxItems: 25
+  # UK Companies House — Bain and Company Inc (UK) (01382593)
+  - type: companies_house
+    entity: Bain
+    frequency: weekly
+    label: Bain UK subsidiary annual accounts
+  # Patents — Bain ADAPT AI platform
+  - type: patents
+    entity: Bain Company
+    frequency: weekly
+    label: Bain & Company patent filings (Lens.org)
+  # Litigation
+  - type: court_listener
+    entity: Bain Company
+    frequency: weekly
+    label: Federal court cases involving Bain & Company
+  # Research papers
+  - type: semantic_scholar
+    entity: Bain Company
+    frequency: weekly
+    label: Bain & Company research papers
+  # India news
+  - type: rss
+    frequency: daily
+    url: https://news.google.com/rss/search?q=Bain+Company+India+consulting&hl=en-IN&gl=IN&ceid=IN:en
+    label: Bain India news via Google News India
+  # India MCA21 — Bain & Company India Pvt Ltd
+  - type: mca21
+    entity: Bain
+    frequency: weekly
+    label: MCA21 filings — Bain & Company India Pvt Ltd (CIN U74140MH2008FTC179618)
 
 - canonical_names:
   - Deloitte Strategy
@@ -161,6 +358,76 @@ competitors:
     actor: indeed-jobs-scraper
     max_results: 5
     query: Deloitte Consulting
+  # Official Deloitte newsroom RSS
+  - type: rss
+    frequency: 30min
+    url: https://www2.deloitte.com/us/en/rss.html
+  # Site-scoped Tavily queries
+  - type: tavily
+    frequency: daily
+    query: site:deloitte.com AI platform launch announcement partnership acquisition 2025 2026
+  - type: tavily
+    frequency: daily
+    query: Deloitte AI Institute acquisition technology platform deal announcement 2025 2026
+  # Deloitte newsroom direct crawl
+  - type: firecrawl
+    frequency: daily
+    url: https://www2.deloitte.com/us/en/pages/about-deloitte/articles/newsroom.html
+  # Reddit — community discussion
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - Deloitte consulting review AI
+        - Deloitte Digital platform
+        - Deloitte strategy technology
+      subreddits:
+        - consulting
+        - MBA
+        - technology
+        - BusinessIntelligence
+      maxItems: 25
+  # UK Companies House — Deloitte LLP (OC303675)
+  - type: companies_house
+    entity: Deloitte
+    frequency: weekly
+    label: Deloitte UK LLP accounts and partner changes
+  # Patents — Deloitte AI Institute
+  - type: patents
+    entity: Deloitte
+    frequency: weekly
+    label: Deloitte patent filings (Lens.org)
+  # Litigation
+  - type: court_listener
+    entity: Deloitte
+    frequency: weekly
+    label: Federal court cases involving Deloitte
+  # Research papers — Deloitte Insights / AI Institute
+  - type: semantic_scholar
+    entity: Deloitte
+    frequency: weekly
+    label: Deloitte Insights / AI Institute research papers
+  # OpenSecrets — Deloitte lobbying (major government practice)
+  - type: open_secrets
+    entity: Deloitte
+    frequency: weekly
+    label: Deloitte federal lobbying spend (OpenSecrets)
+  # India news
+  - type: rss
+    frequency: daily
+    url: https://news.google.com/rss/search?q=Deloitte+India+consulting+advisory&hl=en-IN&gl=IN&ceid=IN:en
+    label: Deloitte India news via Google News India
+  # India MCA21 — Deloitte Touche Tohmatsu India LLP
+  - type: mca21
+    entity: Deloitte
+    frequency: weekly
+    label: MCA21 filings — Deloitte Touche Tohmatsu India LLP (AAB-8458)
+  # India news — PIB (Press Information Bureau)
+  - type: rss
+    frequency: daily
+    url: https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3
+    label: PIB India — Ministry of Finance press releases (policy signals)
 
 - canonical_names:
   - KPMG
@@ -201,6 +468,67 @@ competitors:
     actor: indeed-jobs-scraper
     max_results: 5
     query: KPMG Advisory
+  # KPMG newsroom RSS
+  - type: rss
+    frequency: 30min
+    url: https://info.kpmg.us/rss/kpmg-news.xml
+  # Site-scoped Tavily queries
+  - type: tavily
+    frequency: daily
+    query: site:kpmg.com AI platform launch announcement partnership acquisition 2025 2026
+  - type: tavily
+    frequency: daily
+    query: KPMG acquisition technology investment platform deal partnership 2025 2026
+  # Reddit — community discussion
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - KPMG consulting review AI advisory
+        - KPMG technology platform
+        - KPMG strategy advisory
+      subreddits:
+        - consulting
+        - MBA
+        - accounting
+        - BusinessIntelligence
+      maxItems: 25
+  # UK Companies House — KPMG LLP (OC301540)
+  - type: companies_house
+    entity: KPMG
+    frequency: weekly
+    label: KPMG UK LLP accounts and partner changes
+  # Patents
+  - type: patents
+    entity: KPMG
+    frequency: weekly
+    label: KPMG patent filings (Lens.org)
+  # Litigation
+  - type: court_listener
+    entity: KPMG
+    frequency: weekly
+    label: Federal court cases involving KPMG
+  # Research papers
+  - type: semantic_scholar
+    entity: KPMG
+    frequency: weekly
+    label: KPMG research papers
+  # OpenSecrets — KPMG lobbying
+  - type: open_secrets
+    entity: KPMG
+    frequency: weekly
+    label: KPMG federal lobbying spend (OpenSecrets)
+  # India news
+  - type: rss
+    frequency: daily
+    url: https://news.google.com/rss/search?q=KPMG+India+advisory+consulting&hl=en-IN&gl=IN&ceid=IN:en
+    label: KPMG India news via Google News India
+  # India MCA21 — KPMG Assurance and Consulting Services LLP
+  - type: mca21
+    entity: KPMG
+    frequency: weekly
+    label: MCA21 filings — KPMG Assurance and Consulting Services LLP (AAB-0867)
 
 - canonical_names:
   - Deloitte Digital
@@ -230,6 +558,28 @@ competitors:
   - type: tavily
     frequency: weekly
     query: Deloitte Digital hiring engineering design technology expansion
+  # Site-scoped Tavily queries for Deloitte Digital specifically
+  - type: tavily
+    frequency: daily
+    query: site:deloittedigital.com OR site:deloitte.com digital launch platform AI announcement 2025 2026
+  # Reddit — community discussion
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - Deloitte Digital experience cloud commerce AI
+        - Deloitte Digital platform review
+      subreddits:
+        - consulting
+        - technology
+        - marketing
+      maxItems: 20
+  # Research papers
+  - type: semantic_scholar
+    entity: Deloitte Digital
+    frequency: weekly
+    label: Deloitte Digital research papers
 
 - canonical_names:
   - Oliver Wyman
@@ -262,6 +612,43 @@ competitors:
   - type: tavily
     frequency: weekly
     query: Oliver Wyman hiring leadership restructuring practice expansion
+  # Site-scoped Tavily queries
+  - type: tavily
+    frequency: daily
+    query: site:oliverwyman.com AI platform launch announcement partnership acquisition 2025 2026
+  # Reddit — community discussion
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - Oliver Wyman consulting review
+        - Oliver Wyman financial services digital
+      subreddits:
+        - consulting
+        - FinancialCareers
+        - MBA
+      maxItems: 20
+  # UK Companies House — Oliver Wyman Limited (02997789)
+  - type: companies_house
+    entity: Oliver Wyman
+    frequency: weekly
+    label: Oliver Wyman UK accounts and director changes
+  # Patents
+  - type: patents
+    entity: Oliver Wyman
+    frequency: weekly
+    label: Oliver Wyman patent filings (Lens.org)
+  # Litigation
+  - type: court_listener
+    entity: Oliver Wyman
+    frequency: weekly
+    label: Federal court cases involving Oliver Wyman
+  # India news
+  - type: rss
+    frequency: daily
+    url: https://news.google.com/rss/search?q=Oliver+Wyman+India+financial+services&hl=en-IN&gl=IN&ceid=IN:en
+    label: Oliver Wyman India news
 
 - canonical_names:
   - Accenture Strategy
@@ -300,3 +687,98 @@ competitors:
     actor: indeed-jobs-scraper
     max_results: 5
     query: Accenture Strategy
+  # SEC EDGAR — Accenture is public (ACN); 8-K filings = acquisitions, partnerships, earnings
+  - type: edgar
+    entity: Accenture
+    frequency: daily
+    label: SEC EDGAR 8-K filings (Accenture plc, CIK 0001467373)
+  # Official Accenture newsroom RSS (they have a dedicated feed)
+  - type: rss
+    frequency: 30min
+    url: https://newsroom.accenture.com/news/rss/default.rss
+  # Site-scoped Tavily queries — Accenture newsroom only
+  - type: tavily
+    frequency: daily
+    query: site:newsroom.accenture.com acquisition launch partnership announcement AI 2025 2026
+  - type: tavily
+    frequency: daily
+    query: site:accenture.com strategy AI platform launch announcement partnership acquisition 2025 2026
+  # Accenture newsroom direct crawl
+  - type: firecrawl
+    frequency: daily
+    url: https://newsroom.accenture.com/
+  # Reddit — community discussion
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - Accenture consulting AI strategy review
+        - Accenture Strategy platform technology
+        - Accenture acquisition deal
+      subreddits:
+        - consulting
+        - MBA
+        - technology
+        - BusinessIntelligence
+      maxItems: 25
+  # UK Companies House — Accenture (UK) Limited (04937819)
+  - type: companies_house
+    entity: Accenture
+    frequency: weekly
+    label: Accenture UK subsidiary accounts and director changes
+  # Patents — Accenture Labs is one of the most prolific patent filers in consulting
+  - type: patents
+    entity: Accenture
+    frequency: weekly
+    label: Accenture Labs patent filings (Lens.org) — leading R&D indicator
+  # Litigation
+  - type: court_listener
+    entity: Accenture
+    frequency: weekly
+    label: Federal court cases involving Accenture
+  # Research papers — Accenture Labs / Accenture Research
+  - type: semantic_scholar
+    entity: Accenture
+    frequency: weekly
+    label: Accenture Labs research papers (Semantic Scholar)
+  # GitHub — Accenture has 224+ public repos; most active consulting firm on GitHub
+  - type: github
+    input:
+      orgs:
+        - Accenture
+    frequency: weekly
+    label: Accenture GitHub org activity (new repos + releases)
+  # Alpha Vantage — Accenture (ACN) is the only public company we track
+  - type: alpha_vantage
+    entity: Accenture
+    frequency: daily
+    label: Accenture (ACN) stock news and analyst sentiment (Alpha Vantage)
+  # OpenSecrets — Accenture Federal Services has significant lobbying activity
+  - type: open_secrets
+    entity: Accenture
+    frequency: weekly
+    label: Accenture federal lobbying spend and issues (OpenSecrets)
+  # India news — Accenture India has 300k+ employees
+  - type: rss
+    frequency: daily
+    url: https://news.google.com/rss/search?q=Accenture+India+technology+acquisition&hl=en-IN&gl=IN&ceid=IN:en
+    label: Accenture India news via Google News India
+  # India MCA21 — Accenture Solutions Pvt Ltd
+  - type: mca21
+    entity: Accenture
+    frequency: weekly
+    label: MCA21 filings — Accenture Solutions Pvt Ltd (CIN U72200MH2004PTC145236)
+  # India Reddit hiring and sentiment signals
+  - type: apify
+    frequency: weekly
+    actor: trudax/reddit-scraper
+    input:
+      queries:
+        - Accenture India hiring AI technology 2025 2026
+        - Accenture India layoffs restructuring
+      subreddits:
+        - india
+        - IndiaInvestments
+        - cscareerquestions
+      maxItems: 20

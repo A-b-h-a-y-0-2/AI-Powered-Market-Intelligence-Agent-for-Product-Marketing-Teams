@@ -33,7 +33,7 @@ export interface FeatureMatrixResponse {
   company: string;
   taxonomy_version: string;
   last_updated: string;
-  features: Record<string, Array<{ name: string; source_event_id: string; launched_date: string }>>;
+  features: Record<string, Array<{ name: string; description?: string; source_event_id: string; launched_date: string }>>;
 }
 
 export interface QuarantineItem {
@@ -130,7 +130,7 @@ export const api = {
   narratives: (company: string, days = 90) =>
     get<NarrativeEvent[]>("/narratives", { company, days }),
 
-  pipelineStatus: () => get<PipelineStatus>("/pipeline/status"),
+  pipelineStatus: () => get<PipelineStatus>("/pipeline/summary"),
 
   quarantine: (limit = 50) => get<QuarantineItem[]>("/admin/quarantine", { limit }),
   quarantineStats: () => get<QuarantineStats>("/admin/quarantine/stats"),

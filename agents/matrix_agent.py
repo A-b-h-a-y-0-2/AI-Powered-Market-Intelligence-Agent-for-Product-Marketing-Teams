@@ -27,7 +27,7 @@ from observability.logger import get_logger
 from observability.tracing import calculate_cost, trace_span
 from storage.cache import CacheStore
 from storage.event_store import EventStore
-from tools.errors import AgentError, ErrorCode
+from tools.errors import ErrorCode
 
 log = get_logger("matrix_agent")
 
@@ -52,10 +52,11 @@ def _load_taxonomy() -> dict[str, dict]:
 class FeatureCategoryResult:
     """Output of the LLM taxonomy classifier."""
 
-    def __init__(self, category: str, confidence: float, reasoning: str) -> None:
+    def __init__(self, category: str, confidence: float, reasoning: str, concise_name: str = "") -> None:
         self.category = category
         self.confidence = confidence
         self.reasoning = reasoning
+        self.concise_name = concise_name
 
 
 class MatrixAgent(BaseAgent):
@@ -127,7 +128,7 @@ class MatrixAgent(BaseAgent):
         # Set debounce lock
         await self._cache.set(debounce_key, "1", ttl_seconds=_DEBOUNCE_TTL_SECONDS)
 
-        feature_name = event.get("feature_name") or event.get("summary", "")[:100]
+        feature_name = event.get("feature_name") or event.get("summary", "")[:150]
         event_type = event.get("event_type", "")
 
         log.info(
@@ -158,12 +159,14 @@ class MatrixAgent(BaseAgent):
             }
 
         # Append the new feature entry
+        resolved_name = category_result.concise_name or feature_name
         new_entry = {
-            "feature_name": feature_name,
+            "name": resolved_name,
+            "description": event.get("summary", "")[:400],
             "launched_date": event.get("timestamp", datetime.now(tz=timezone.utc).isoformat())[:10],
             "source_event_id": event_id,
             "event_type": event_type,
-            "classifier_confidence": category_result.confidence,
+            "classifier_confidence": str(round(category_result.confidence, 3)),
         }
 
         category = category_result.category
@@ -171,8 +174,8 @@ class MatrixAgent(BaseAgent):
             matrix_doc["features"][category] = []
 
         # Avoid duplicate entries for the same feature name
-        existing_names = {f["feature_name"] for f in matrix_doc["features"][category]}
-        if feature_name not in existing_names:
+        existing_names = {f["name"] for f in matrix_doc["features"][category]}
+        if resolved_name not in existing_names:
             matrix_doc["features"][category].append(new_entry)
 
         # Persist updated matrix
@@ -212,9 +215,9 @@ class MatrixAgent(BaseAgent):
             for cat, meta in self._taxonomy.items()
         )
 
-        prompt = f"""Classify this product feature into one taxonomy category.
+        prompt = f"""Classify this product feature into one taxonomy category and extract a concise name.
 
-Feature name: {feature_name}
+Feature/event text: {feature_name}
 Event summary: {event_summary}
 Event type: {event_type}
 Company: {company}
@@ -226,7 +229,8 @@ Return JSON:
 {{
   "category": "the category key that best fits (use exactly one of the keys above)",
   "confidence": 0.0 to 1.0,
-  "reasoning": "one sentence"
+  "reasoning": "one sentence",
+  "concise_name": "3-7 word product or feature name only, no company name, no verbs (e.g. 'QuantumBlack AI Studio', 'Responsible AI Monitor')"
 }}"""
 
         from pydantic import BaseModel
@@ -235,6 +239,7 @@ Return JSON:
             category: str
             confidence: float
             reasoning: str
+            concise_name: str
 
         async with trace_span(self.name, "classify_feature") as span:
             try:
@@ -267,6 +272,7 @@ Return JSON:
                     category=result.category,
                     confidence=result.confidence,
                     reasoning=result.reasoning,
+                    concise_name=result.concise_name,
                 )
             except Exception as exc:
                 log.error(

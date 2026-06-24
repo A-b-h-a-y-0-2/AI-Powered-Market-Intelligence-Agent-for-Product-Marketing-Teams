@@ -34,9 +34,18 @@ from schemas.config import CompetitorConfig
 from schemas.state import AgentStatus, CrawlResult, PipelineState
 from storage.cache import CacheStore
 from storage.event_store import EventStore
+from tools.alpha_vantage import AlphaVantageTool
 from tools.apify import ApifyClient, ApifyError
+from tools.companies_house import CompaniesHouseTool
+from tools.court_listener import CourtListenerTool
 from tools.crawler import CircuitBreaker, Crawler
+from tools.edgar import EDGARTool
 from tools.errors import CircuitOpenError, CrawlError, ErrorCode
+from tools.github_monitor import GitHubMonitorTool
+from tools.lens_patents import LensPatentsTool
+from tools.mca21 import MCA21Tool
+from tools.open_secrets import OpenSecretsTool
+from tools.semantic_scholar import SemanticScholarTool
 
 log = get_logger("research_agent")
 
@@ -69,6 +78,15 @@ class ResearchAgent(BaseAgent):
         circuit_breaker: CircuitBreaker,
         tavily_search=None,
         apify_client: ApifyClient | None = None,
+        edgar_tool: EDGARTool | None = None,
+        companies_house_tool: CompaniesHouseTool | None = None,
+        lens_patents_tool: LensPatentsTool | None = None,
+        court_listener_tool: CourtListenerTool | None = None,
+        semantic_scholar_tool: SemanticScholarTool | None = None,
+        github_monitor_tool: GitHubMonitorTool | None = None,
+        alpha_vantage_tool: AlphaVantageTool | None = None,
+        open_secrets_tool: OpenSecretsTool | None = None,
+        mca21_tool: MCA21Tool | None = None,
     ) -> None:
         self._crawler = crawler
         self._event_store = event_store
@@ -76,6 +94,15 @@ class ResearchAgent(BaseAgent):
         self._circuit_breaker = circuit_breaker
         self._tavily = tavily_search
         self._apify = apify_client
+        self._edgar = edgar_tool or EDGARTool()
+        self._companies_house = companies_house_tool or CompaniesHouseTool()
+        self._lens_patents = lens_patents_tool or LensPatentsTool()
+        self._court_listener = court_listener_tool or CourtListenerTool()
+        self._semantic_scholar = semantic_scholar_tool or SemanticScholarTool()
+        self._github_monitor = github_monitor_tool or GitHubMonitorTool()
+        self._alpha_vantage = alpha_vantage_tool or AlphaVantageTool()
+        self._open_secrets = open_secrets_tool or OpenSecretsTool()
+        self._mca21 = mca21_tool or MCA21Tool()
 
     async def run(
         self, competitors: list[CompetitorConfig], run_id: str | None = None
@@ -99,6 +126,8 @@ class ResearchAgent(BaseAgent):
         crawl_tasks = []
         tavily_tasks = []
         apify_tasks = []
+        edgar_tasks = []
+        ext_api_tasks = []  # companies_house, patents, court_listener, etc.
 
         for competitor in competitors:
             for source in competitor.sources:
@@ -111,6 +140,74 @@ class ResearchAgent(BaseAgent):
                             source_url=source.url,
                             run_id=run_id,
                         )
+                    )
+
+                elif source.type == "edgar":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 7)
+                    entity = source.entity or competitor.competitor
+                    edgar_tasks.append(
+                        self._crawl_edgar_source(
+                            competitor=competitor.competitor,
+                            entity=entity,
+                            days=days,
+                            run_id=run_id,
+                        )
+                    )
+
+                elif source.type == "companies_house":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 30)
+                    entity = source.entity or competitor.competitor
+                    ext_api_tasks.append(
+                        self._crawl_companies_house(competitor.competitor, entity, days)
+                    )
+
+                elif source.type == "patents":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 180)
+                    entity = source.entity or competitor.competitor
+                    ext_api_tasks.append(
+                        self._crawl_patents(competitor.competitor, entity, days)
+                    )
+
+                elif source.type == "court_listener":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 180)
+                    entity = source.entity or competitor.competitor
+                    ext_api_tasks.append(
+                        self._crawl_court_listener(competitor.competitor, entity, days)
+                    )
+
+                elif source.type == "semantic_scholar":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 365)
+                    entity = source.entity or competitor.competitor
+                    ext_api_tasks.append(
+                        self._crawl_semantic_scholar(competitor.competitor, entity, days)
+                    )
+
+                elif source.type == "github":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 30)
+                    orgs = (source.input or {}).get("orgs")
+                    ext_api_tasks.append(
+                        self._crawl_github(competitor.competitor, days, orgs)
+                    )
+
+                elif source.type == "alpha_vantage":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 14)
+                    entity = source.entity or competitor.competitor
+                    ext_api_tasks.append(
+                        self._crawl_alpha_vantage(competitor.competitor, entity, days)
+                    )
+
+                elif source.type == "open_secrets":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 365)
+                    entity = source.entity or competitor.competitor
+                    ext_api_tasks.append(
+                        self._crawl_open_secrets(competitor.competitor, entity, days)
+                    )
+
+                elif source.type == "mca21":
+                    days = _TAVILY_DAYS_BY_FREQUENCY.get(source.frequency, 365)
+                    entity = source.entity or competitor.competitor
+                    ext_api_tasks.append(
+                        self._crawl_mca21(competitor.competitor, entity, days)
                     )
 
                 elif source.type == "tavily":
@@ -173,6 +270,8 @@ class ResearchAgent(BaseAgent):
             [bounded_crawl(t) for t in crawl_tasks]
             + [bounded_crawl(t) for t in tavily_tasks]
             + [bounded_apify(t) for t in apify_tasks]
+            + [bounded_crawl(t) for t in edgar_tasks]
+            + [bounded_crawl(t) for t in ext_api_tasks]
         )
         results = await asyncio.gather(*all_tasks, return_exceptions=True)
 
@@ -196,6 +295,8 @@ class ResearchAgent(BaseAgent):
             firecrawl_rss_tasks=len(crawl_tasks),
             tavily_tasks=len(tavily_tasks),
             apify_tasks=len(apify_tasks),
+            edgar_tasks=len(edgar_tasks),
+            ext_api_tasks=len(ext_api_tasks),
             changed_sources=len(changed_results),
         )
 
@@ -338,9 +439,15 @@ class ResearchAgent(BaseAgent):
                 content_body = getattr(r, "content", None) or ""
                 if not url or not content_body:
                     continue
-                # Only keep articles that actually mention the target company
-                combined_lower = (title + " " + content_body).lower()
-                if not any(tok in combined_lower for tok in name_tokens):
+                # Only keep articles primarily about the target company.
+                # Require the company name in the title, OR 2+ mentions in the body.
+                # A single mention in a 500-word article means the article is about
+                # someone else who merely references the company in passing.
+                title_lower = title.lower()
+                body_lower = content_body.lower()
+                in_title = any(tok in title_lower for tok in name_tokens)
+                in_body_twice = any(body_lower.count(tok) >= 2 for tok in name_tokens)
+                if not in_title and not in_body_twice:
                     skipped += 1
                     continue
                 content = f"{title}\n\n{content_body}"
@@ -374,6 +481,38 @@ class ResearchAgent(BaseAgent):
                 query=query[:80],
                 run_id=run_id,
                 status="failure",
+                error=str(exc),
+            )
+            return []
+
+    async def _crawl_edgar_source(
+        self,
+        competitor: str,
+        entity: str,
+        days: int,
+        run_id: str,
+    ) -> list[CrawlResult]:
+        """Search SEC EDGAR for 8-K filings mentioning this company."""
+        try:
+            results = await self._edgar.search_8k(company_name=entity, days=days)
+            log.info(
+                "edgar_crawl_complete",
+                action="crawl",
+                competitor=competitor,
+                entity=entity,
+                days=days,
+                filings=len(results),
+                run_id=run_id,
+                status="success",
+            )
+            return results
+        except Exception as exc:
+            log.error(
+                "edgar_crawl_failed",
+                action="crawl",
+                competitor=competitor,
+                entity=entity,
+                run_id=run_id,
                 error=str(exc),
             )
             return []
@@ -429,6 +568,17 @@ class ResearchAgent(BaseAgent):
                     return []
                 result = await self._apify.scrape_capterra_reviews(slug)
                 await self._store_review_batch(result.items, competitor, "capterra", now)
+                return []
+
+            elif "reddit" in actor.lower():
+                # Reddit scraper — posts flow to review_batches for SentimentAgent
+                input_data = source.input or {
+                    "queries": [competitor],
+                    "subreddits": ["consulting", "MBA"],
+                    "maxItems": 20,
+                }
+                result = await self._apify.run_actor(actor, input_data)
+                await self._store_review_batch(result.items, competitor, "reddit", now)
                 return []
 
             else:
@@ -541,6 +691,78 @@ class ResearchAgent(BaseAgent):
                 platform=platform,
                 error=str(exc)[:120],
             )
+
+    async def _crawl_companies_house(
+        self, competitor: str, entity: str, days: int
+    ) -> list[CrawlResult]:
+        try:
+            return await self._companies_house.search_company(entity, days=days)
+        except Exception as exc:
+            log.error("companies_house_crawl_failed", competitor=competitor, error=str(exc))
+            return []
+
+    async def _crawl_patents(
+        self, competitor: str, entity: str, days: int
+    ) -> list[CrawlResult]:
+        try:
+            return await self._lens_patents.search_patents(entity, days=days)
+        except Exception as exc:
+            log.error("patents_crawl_failed", competitor=competitor, error=str(exc))
+            return []
+
+    async def _crawl_court_listener(
+        self, competitor: str, entity: str, days: int
+    ) -> list[CrawlResult]:
+        try:
+            return await self._court_listener.search_cases(entity, days=days)
+        except Exception as exc:
+            log.error("court_listener_crawl_failed", competitor=competitor, error=str(exc))
+            return []
+
+    async def _crawl_semantic_scholar(
+        self, competitor: str, entity: str, days: int
+    ) -> list[CrawlResult]:
+        try:
+            return await self._semantic_scholar.search_papers(entity, days=days)
+        except Exception as exc:
+            log.error("semantic_scholar_crawl_failed", competitor=competitor, error=str(exc))
+            return []
+
+    async def _crawl_github(
+        self, competitor: str, days: int, orgs: list[str] | None
+    ) -> list[CrawlResult]:
+        try:
+            return await self._github_monitor.monitor_org(competitor, days=days, orgs=orgs)
+        except Exception as exc:
+            log.error("github_crawl_failed", competitor=competitor, error=str(exc))
+            return []
+
+    async def _crawl_alpha_vantage(
+        self, competitor: str, entity: str, days: int
+    ) -> list[CrawlResult]:
+        try:
+            return await self._alpha_vantage.search_news(entity, days=days)
+        except Exception as exc:
+            log.error("alpha_vantage_crawl_failed", competitor=competitor, error=str(exc))
+            return []
+
+    async def _crawl_open_secrets(
+        self, competitor: str, entity: str, days: int
+    ) -> list[CrawlResult]:
+        try:
+            return await self._open_secrets.search_lobbying(entity, days=days)
+        except Exception as exc:
+            log.error("open_secrets_crawl_failed", competitor=competitor, error=str(exc))
+            return []
+
+    async def _crawl_mca21(
+        self, competitor: str, entity: str, days: int
+    ) -> list[CrawlResult]:
+        try:
+            return await self._mca21.search_filings(entity, days=days)
+        except Exception as exc:
+            log.error("mca21_crawl_failed", competitor=competitor, error=str(exc))
+            return []
 
     async def health_check(self) -> dict:
         cache_ok = await self._cache.health_check()
